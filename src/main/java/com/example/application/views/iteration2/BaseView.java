@@ -17,7 +17,13 @@ public abstract class BaseView extends Composite<Div> {
         bottomToolbar = new Toolbar();
         mainContent = new Main();
 
-        mainContent.addClassNames(LumoUtility.Flex.GROW, LumoUtility.BoxShadow.XSMALL);
+        mainContent.addClassNames(
+                LumoUtility.Width.FULL,
+                LumoUtility.Height.FULL,
+                LumoUtility.Overflow.AUTO,
+                LumoUtility.BoxShadow.XSMALL,
+                LumoUtility.Background.BASE
+        );
 
         getContent().add(topToolbar, mainContent, bottomToolbar);
 
