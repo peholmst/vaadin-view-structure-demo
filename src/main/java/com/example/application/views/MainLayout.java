@@ -55,7 +55,8 @@ public class MainLayout extends Composite<Div> implements RouterLayout {
 
         contentContainer = new Div();
         contentContainer.addClassNames(
-                LumoUtility.Height.FULL,
+                LumoUtility.MinHeight.NONE,
+                LumoUtility.Flex.GROW,
                 LumoUtility.Overflow.AUTO
         );
 

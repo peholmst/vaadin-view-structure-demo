@@ -31,7 +31,7 @@ public class TeamsView extends Composite<Div> implements AfterNavigationObserver
 
         this.contentContainer = new Div();
         contentContainer.addClassNames(
-                LumoUtility.Height.FULL,
+                LumoUtility.MinHeight.NONE,
                 LumoUtility.Flex.GROW
         );
 
@@ -39,7 +39,8 @@ public class TeamsView extends Composite<Div> implements AfterNavigationObserver
         addClassNames(
                 LumoUtility.Display.FLEX,
                 LumoUtility.Height.FULL,
-                LumoUtility.Width.FULL
+                LumoUtility.Width.FULL,
+                LumoUtility.Overflow.HIDDEN
         );
     }
 

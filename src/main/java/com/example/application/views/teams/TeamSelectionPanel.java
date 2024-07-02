@@ -9,7 +9,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -25,8 +25,7 @@ class TeamSelectionPanel extends Composite<Div> implements AfterNavigationObserv
 
     TeamSelectionPanel(TeamService teamService) {
         this.teamService = teamService;
-        var title = new Span("Teams");
-        title.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.FontWeight.SEMIBOLD);
+        var title = new H3("Teams");
 
         var addNewButton = new Button("Add New");
         addNewButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -54,7 +53,7 @@ class TeamSelectionPanel extends Composite<Div> implements AfterNavigationObserv
 
         grid = new Grid<>();
         grid.addColumn(new ComponentRenderer<>(TeamPanel::new));
-        grid.addClassNames(LumoUtility.Height.FULL);
+        grid.addClassNames(LumoUtility.Flex.GROW);
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresentOrElse(TeamsView::selectTeam, TeamsView::clearSelection));
 
