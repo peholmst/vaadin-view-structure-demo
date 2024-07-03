@@ -1,4 +1,6 @@
 package com.example.application.data;
 
-public record Team(String publicId, String name, String description) {
+import com.vaadin.hilla.Nonnull;
+
+public record Team(@Nonnull String publicId, String name, String description) {
 }

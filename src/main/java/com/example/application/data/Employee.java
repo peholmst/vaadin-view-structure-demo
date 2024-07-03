@@ -1,4 +1,7 @@
 package com.example.application.data;
 
-public record Employee(String publicId, String firstName, String lastName, String role) { // TODO Photo
+import com.vaadin.hilla.Nonnull;
+
+public record Employee(@Nonnull String publicId, String firstName, String lastName, String role, String phone,
+                       String email, String timeZone, String picture) {
 }
