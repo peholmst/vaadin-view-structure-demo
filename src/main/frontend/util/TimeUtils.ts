@@ -21,3 +21,13 @@ export function daysSince(date: Date): string {
 export function localTime(timeZone: string) {
     return new Date().toLocaleTimeString(navigator.language, {timeZone})
 }
+
+const dateFormat = new Intl.DateTimeFormat(navigator.language, {year: 'numeric', month: 'long', day: 'numeric'})
+
+export function formatDate(date: Date | string) {
+    if (typeof date === "string") {
+        return dateFormat.format(new Date(date))
+    } else {
+        return dateFormat.format(date as Date)
+    }
+}
