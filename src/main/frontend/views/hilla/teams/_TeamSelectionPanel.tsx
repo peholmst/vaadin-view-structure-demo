@@ -1,24 +1,34 @@
 import {Button, Grid, GridColumn, TextField} from "@vaadin/react-components";
-import {Signal, useSignal} from "@vaadin/hilla-react-signals";
+import {useSignal} from "@vaadin/hilla-react-signals";
 import Team from "Frontend/generated/com/example/application/data/Team";
-import {useEffect} from "react";
 import {TeamService} from "Frontend/generated/endpoints";
 import TeamPanel from "Frontend/views/hilla/teams/_TeamPanel";
+import useSingleSelection from "Frontend/util/Selection";
+import {useServiceQuery} from "Frontend/util/Service";
+import {useSearchParam} from "Frontend/util/SearchParam";
+import {useEffect} from "react";
 
 export type TeamSelectionPanelProps = {
-    selectedTeam: Signal<Team | undefined | null>
+    selectedTeamId: string | undefined | null,
+    onTeamSelected: (team: Team | undefined | null) => void
 }
 
 export default function TeamSelectionPanel(props: TeamSelectionPanelProps) {
-    const teams = useSignal<Team[]>([])
-    const searchTerm = useSignal<string>("")
+    const searchTermParam = useSearchParam({parameter: "search"})
+    const searchTerm = useSignal<string>(searchTermParam.value || "")
+    const teams = useServiceQuery({
+        service: TeamService.findTeams,
+        params: [searchTerm.value]
+    })
+    const selectedTeam = useSingleSelection<Team, string>({
+        itemId: props.selectedTeamId,
+        items: teams.data,
+        getId: item => item.publicId
+    })
 
     useEffect(() => {
-        const handle = window.setTimeout(() => {
-            TeamService.findTeams(searchTerm.value).then(result => teams.value = result).catch(console.error)
-        }, 200)
-        return () => window.clearTimeout(handle)
-    }, [searchTerm.value])
+        searchTermParam.setValue(searchTerm.value)
+    }, [searchTerm.value]);
 
     return (
         <div className="flex flex-col bg-contrast-5 border-r" style={{width: "300px"}}>
@@ -32,9 +42,9 @@ export default function TeamSelectionPanel(props: TeamSelectionPanelProps) {
             </div>
             <Grid className="flex-grow"
                   theme="no-border"
-                  items={teams.value}
-                  selectedItems={props.selectedTeam.value ? [props.selectedTeam.value] : []}
-                  onActiveItemChanged={e => props.selectedTeam.value = e.detail.value}>
+                  items={teams.data}
+                  selectedItems={selectedTeam.items}
+                  onActiveItemChanged={e => props.onTeamSelected(e.detail.value)}>
                 <GridColumn>
                     {({item}) => <TeamPanel key={item.publicId} team={item}/>}
                 </GridColumn>
