@@ -1,7 +1,7 @@
 import TeamMember from "Frontend/generated/com/example/application/data/TeamMember";
 import PersonPanel from "Frontend/component/PersonPanel";
 import IconItem from "Frontend/component/IconItem";
-import {daysSince, localTime} from "Frontend/util/TimeUtils";
+import {daysSince, formatDate, localTime} from "Frontend/util/TimeUtils";
 
 export type EmployeeDetailsPanelProps = {
     teamMember: TeamMember
@@ -18,7 +18,7 @@ export default function EmployeeDetailsPanel(props: EmployeeDetailsPanelProps) {
                 <IconItem icon="vaadin:phone" text={props.teamMember.employee.phone}/>
                 <IconItem icon="vaadin:envelope-o" text={props.teamMember.employee.email}/>
                 <IconItem icon="vaadin:calendar-o"
-                          text={new Date(props.teamMember.joined).toLocaleDateString(navigator.language)}/>
+                          text={formatDate(props.teamMember.joined)}/>
                 <IconItem icon="vaadin:user-clock" text={daysSince(new Date(props.teamMember.joined))}/>
             </div>
             <div className="border-t flex gap-l py-m">
