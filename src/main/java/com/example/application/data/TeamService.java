@@ -141,11 +141,11 @@ public class TeamService {
         }
     }
 
-    public Optional<Team> findTeamByPublicId(String publicId) {
+    public Optional<Team> findTeamByPublicId(@Nonnull String publicId) {
         return teams.stream().filter(team -> team.publicId().equals(publicId)).findFirst();
     }
 
-    public Optional<TeamDetails> findTeamDetailsByPublicId(String publicId) {
+    public Optional<TeamDetails> findTeamDetailsByPublicId(@Nonnull String publicId) {
         return Optional.ofNullable(teamDetails.get(publicId));
     }
 }
