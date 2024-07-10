@@ -40,6 +40,7 @@ function deserialize(string: string | null | undefined): SortBy | undefined {
     return undefined
 }
 
+// TODO Refactor this to use SearchParam instead.
 export function bindSortBySignalToQueryParameter(parameter: string, signal: Signal<SortBy | undefined>) {
     const urlSearchParams = new URLSearchParams(window.location.search)
     const value = deserialize(urlSearchParams.get(parameter))

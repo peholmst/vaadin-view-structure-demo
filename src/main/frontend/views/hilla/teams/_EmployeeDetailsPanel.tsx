@@ -9,7 +9,7 @@ export type EmployeeDetailsPanelProps = {
 
 export default function EmployeeDetailsPanel(props: EmployeeDetailsPanelProps) {
     return (
-        <div className="flex flex-col p-m" style={{"min-height": "230px"}}>
+        <div className="flex flex-col p-m" style={{minHeight: "230px"}}>
             <PersonPanel name={`${props.teamMember.employee.firstName} ${props.teamMember.employee.lastName}`}
                          title={props.teamMember.employee.role}
                          image={props.teamMember.employee.picture}

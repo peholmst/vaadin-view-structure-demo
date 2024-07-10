@@ -1,4 +1,4 @@
-import {useSignal} from "@vaadin/hilla-react-signals";
+import {computed, ReadonlySignal, useSignal} from "@vaadin/hilla-react-signals";
 import {useEffect} from "react";
 
 export type SingleSelectionOptions<T, ID> = {
@@ -9,13 +9,15 @@ export type SingleSelectionOptions<T, ID> = {
 
 export type Selection<T> = {
     readonly items: T[] | undefined
+    readonly itemsSignal: ReadonlySignal<T[] | undefined>
 }
 
-export type SingleSelection<T, ID> = {
+export type SingleSelection<T> = {
     readonly item: T | undefined
+    readonly itemSignal: ReadonlySignal<T | undefined>
 } & Selection<T>
 
-export default function useSingleSelection<T, ID>(options: SingleSelectionOptions<T, ID>): SingleSelection<T, ID> {
+export default function useSingleSelection<T, ID>(options: SingleSelectionOptions<T, ID>): SingleSelection<T> {
     const selection = useSignal<T | undefined>(undefined)
     useEffect(() => {
         if (options.itemId && options.items) {
@@ -27,5 +29,9 @@ export default function useSingleSelection<T, ID>(options: SingleSelectionOption
     return {
         item: selection.value,
         items: selection.value ? [selection.value] : [],
+        itemsSignal: computed(() => {
+            return selection.value ? [selection.value] : []
+        }),
+        itemSignal: selection
     }
 }

@@ -46,20 +46,8 @@ export const {router, routes} = new RouterConfigurationBuilder()
             },
             children: [
                 {
-                    path: "/hilla/teams",
-                    element: <TeamsView/>,
-                    children: [
-                        {
-                            path: ":teamId",
-                            children: [
-                                {
-                                    path: "employees", children: [{path: ":employeeId"}]
-                                },
-                                {path: "salaries"},
-                                {path: "documents"}
-                            ]
-                        }
-                    ]
+                    path: "/hilla/teams/:teamId?/:tabId?/:employeeId?",
+                    element: <TeamsView/>
                 }
             ]
         }

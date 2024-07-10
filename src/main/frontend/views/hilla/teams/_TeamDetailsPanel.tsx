@@ -1,69 +1,93 @@
 import {Button, Tab, Tabs} from "@vaadin/react-components";
 import IconItem from "Frontend/component/IconItem";
 import PersonPanel from "Frontend/component/PersonPanel";
-import TeamDetails from "Frontend/generated/com/example/application/data/TeamDetails";
-import {useSignal} from "@vaadin/hilla-react-signals";
+import {SubviewId, TeamDetailsViewModel} from "Frontend/views/hilla/teams/_TeamsViewModel";
 import EmployeesSubview from "Frontend/views/hilla/teams/_EmployeesSubview";
 import SalariesSubview from "Frontend/views/hilla/teams/_SalariesSubview";
 import DocumentsSubview from "Frontend/views/hilla/teams/_DocumentsSubview";
 
-export type TeamDetailsProps = {
-    teamDetails: TeamDetails
+const tabs: SubviewId[] = ["employees", "salaries", "documents"]
+
+function Header({viewModel}: { viewModel: TeamDetailsViewModel }) {
+    console.debug("Rendering Header", viewModel)
+    return (
+        <div className="flex justify-between items-start p-m border-b">
+            <div className="flex flex-col gap-s">
+                <h3>{viewModel.name}</h3>
+                <span className="text-s text-secondary whitespace-normal">
+                        {viewModel.description}
+                    </span>
+            </div>
+            <div className="flex gap-xs">
+                <Button onClick={viewModel.edit}>Edit</Button>
+                <Button onClick={viewModel.share}>Share</Button>
+                <Button onClick={viewModel.delete} theme="error">Delete</Button>
+            </div>
+        </div>
+    )
 }
 
-type Subview = "employees" | "salaries" | "documents"
-// This array is only needed because Tabs uses indexes to determine the selected tab.
-const tabs: Subview[] = ["employees", "salaries", "documents"]
+function Summary({viewModel}: { viewModel: TeamDetailsViewModel }) {
+    console.debug("Rendering Summary", viewModel)
+    return (
+        <div className="flex flex-col p-m border-b gap-s">
+            <h4>Summary</h4>
+            <IconItem icon="vaadin:group"
+                      text={viewModel.size.value == 1 ? "1 person" : `${viewModel.size.value} people`}/>
+            <IconItem icon="vaadin:factory" text="Random info"/>
+            <IconItem icon="vaadin:clock" text="Random info"/>
+        </div>
+    )
+}
 
-export default function TeamDetailsPanel(props: TeamDetailsProps) {
-    const subview = useSignal<Subview>("employees")
+function Managers({viewModel}: { viewModel: TeamDetailsViewModel }) {
+    console.debug("Rendering Managers", viewModel)
+    return (
+        <div className="flex flex-col p-m gap-s flex-grow">
+            <h4>Managers</h4>
+            {viewModel.managers.value.map(member =>
+                <PersonPanel key={member.publicId}
+                             name={`${member.firstName} ${member.lastName}`}
+                             title={member.role}
+                             image={member.picture}/>
+            )}
+        </div>
+    )
+}
 
+function Subviews({viewModel}: { viewModel: TeamDetailsViewModel }) {
+    console.debug("Rendering Subviews", viewModel)
+    return (
+        <div className="flex flex-col flex-grow min-h-0">
+            <Tabs onSelectedChanged={e => viewModel.selectSubview(tabs[e.detail.value])}
+                  selected={tabs.indexOf(viewModel.selectedSubview.value)}>
+                <Tab>Employees</Tab>
+                <Tab>Salaries</Tab>
+                <Tab>Documents</Tab>
+            </Tabs>
+            <div className="flex-grow min-h-0">
+                {viewModel.selectedSubview.value == "employees" &&
+                    <EmployeesSubview viewModel={viewModel.employeesSubview.value}/>}
+                {viewModel.selectedSubview.value == "salaries" &&
+                    <SalariesSubview viewModel={viewModel.salariesSubview.value}/>}
+                {viewModel.selectedSubview.value == "documents" &&
+                    <DocumentsSubview viewModel={viewModel.documentsSubview.value}/>}
+            </div>
+        </div>
+    )
+}
+
+export default function TeamDetailsPanel({viewModel}: { viewModel: TeamDetailsViewModel }) {
+    console.debug("Rendering TeamDetailsPanel", viewModel)
     return (
         <div className="flex flex-col h-full flex-grow">
-            <div className="flex justify-between items-start p-m border-b">
-                <div className="flex flex-col gap-s">
-                    <h3>{props.teamDetails.name}</h3>
-                    <span className="text-s text-secondary whitespace-normal">
-                        {props.teamDetails.description}
-                    </span>
-                </div>
-                <div className="flex gap-xs">
-                    <Button>Edit</Button>
-                    <Button>Share</Button>
-                    <Button theme="error">Delete</Button>
-                </div>
-            </div>
+            <Header viewModel={viewModel}/>
             <div className="flex flex-grow min-h-0">
                 <div className="flex flex-col border-r min-h-0 overflow-auto" style={{width: "380px"}}>
-                    <div className="flex flex-col p-m border-b gap-s">
-                        <h4>Summary</h4>
-                        <IconItem icon="vaadin:group" text={`${props.teamDetails.members.length} people`}/>
-                        <IconItem icon="vaadin:factory" text="Random info"/>
-                        <IconItem icon="vaadin:clock" text="Random info"/>
-                    </div>
-                    <div className="flex flex-col p-m gap-s flex-grow">
-                        <h4>Managers</h4>
-                        {props.teamDetails.members.filter(member => member.manager).map(member =>
-                            <PersonPanel key={member.employee.publicId}
-                                         name={`${member.employee.firstName} ${member.employee.lastName}`}
-                                         title={member.employee.role}
-                                         image={member.employee.picture}/>
-                        )}
-                    </div>
+                    <Summary viewModel={viewModel}/>
+                    <Managers viewModel={viewModel}/>
                 </div>
-                <div className="flex flex-col flex-grow min-h-0">
-                    <Tabs onSelectedChanged={e => subview.value = tabs[e.detail.value]}
-                          selected={tabs.indexOf(subview.value)}>
-                        <Tab>Employees</Tab>
-                        <Tab>Salaries</Tab>
-                        <Tab>Documents</Tab>
-                    </Tabs>
-                    <div className="flex-grow min-h-0">
-                        {subview.value == "employees" && <EmployeesSubview teamDetails={props.teamDetails}/>}
-                        {subview.value == "salaries" && <SalariesSubview/>}
-                        {subview.value == "documents" && <DocumentsSubview/>}
-                    </div>
-                </div>
+                <Subviews viewModel={viewModel}/>
             </div>
         </div>
     )

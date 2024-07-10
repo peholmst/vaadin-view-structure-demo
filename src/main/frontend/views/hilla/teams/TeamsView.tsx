@@ -1,23 +1,24 @@
 import TeamSelectionPanel from "Frontend/views/hilla/teams/_TeamSelectionPanel";
 import TeamDetailsPanel from "Frontend/views/hilla/teams/_TeamDetailsPanel";
-import {TeamService} from "Frontend/generated/endpoints";
-import {useNavigate, useParams} from "react-router-dom";
-import {useServiceQuery} from "Frontend/util/Service";
+import {TeamsViewModel, useTeamsViewModel} from "Frontend/views/hilla/teams/_TeamsViewModel";
+
+function TeamDetailsContainer({viewModel}: { viewModel: TeamsViewModel }) {
+    console.debug("Rendering TeamDetailsContainer", viewModel)
+    const teamDetails = viewModel.teamDetails.value
+    if (teamDetails != null) {
+        return <TeamDetailsPanel viewModel={teamDetails}/>
+    } else {
+        return <div className="p-m">Please select a team.</div>
+    }
+}
 
 export default function TeamsView() {
-    const {teamId} = useParams()
-    const teamDetails = useServiceQuery({
-        service: async (teamId) => teamId ? await TeamService.findTeamDetailsByPublicId(teamId) : undefined,
-        params: [teamId]
-    })
-    const navigate = useNavigate()
-
+    const viewModel = useTeamsViewModel()
+    console.debug("Rendering TeamsView", viewModel)
     return (
         <div className="flex h-full w-full overflow-hidden">
-            <TeamSelectionPanel selectedTeamId={teamId}
-                                onTeamSelected={team => team ? navigate(`/hilla/teams/${team.publicId}`) : navigate("/hilla/teams")}/>
-            {teamDetails.data && <TeamDetailsPanel teamDetails={teamDetails.data}/>}
-            {!teamDetails.data && <div className="p-m">Please select a team.</div>}
+            <TeamSelectionPanel viewModel={viewModel}/>
+            <TeamDetailsContainer viewModel={viewModel}/>
         </div>
     )
 }
