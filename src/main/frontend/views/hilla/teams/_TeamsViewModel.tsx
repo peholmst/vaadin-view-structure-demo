@@ -1,4 +1,4 @@
-import {computed, ReadonlySignal, Signal, signal} from "@vaadin/hilla-react-signals";
+import {computed, effect, ReadonlySignal, Signal, signal} from "@vaadin/hilla-react-signals";
 import Team from "Frontend/generated/com/example/application/data/Team";
 import TeamDetails from "Frontend/generated/com/example/application/data/TeamDetails";
 import Employee from "Frontend/generated/com/example/application/data/Employee";
@@ -6,7 +6,7 @@ import {serviceQuery} from "Frontend/util/Service";
 import {TeamService} from "Frontend/generated/endpoints";
 import {useMemo} from "react";
 import TeamMember from "Frontend/generated/com/example/application/data/TeamMember";
-import {SortBy} from "Frontend/util/GridSortUtils";
+import {serializeSortBy, SortBy} from "Frontend/util/GridSortUtils";
 import {delay} from "Frontend/util/SignalUtils";
 
 export type SubviewId = "employees" | "salaries" | "documents"
@@ -53,6 +53,7 @@ function createDocumentsSubviewModel(): DocumentsSubviewModel {
 
 export type TeamDetailsViewModel = {
     // Properties
+    readonly teamId: ReadonlySignal<string>
     readonly name: ReadonlySignal<string | undefined>
     readonly description: ReadonlySignal<string | undefined>
     readonly size: ReadonlySignal<number>
@@ -69,6 +70,7 @@ export type TeamDetailsViewModel = {
 }
 
 function createTeamDetailsViewModel(details: TeamDetails, selectedSubview: Signal<SubviewId>, orderEmployeesBy: Signal<SortBy | undefined>): TeamDetailsViewModel {
+    const teamId = signal(details.publicId)
     const name = signal(details.name)
     const description = signal(details.description)
     const size = signal(details.members.length)
@@ -77,6 +79,7 @@ function createTeamDetailsViewModel(details: TeamDetails, selectedSubview: Signa
     const documentsSubview = signal(createDocumentsSubviewModel())
     const salariesSubview = signal(createSalariesSubviewModel())
     return {
+        teamId: teamId,
         name: name,
         description: description,
         size: size,
@@ -110,6 +113,35 @@ export type TeamsViewModel = {
     readonly selectTeam: (teamId: string | undefined) => void
     readonly addNew: () => void
 }
+
+// TODO I should not need to build and query the URL manually. It should be possible to just map signals to various parts of the URL, provided that various conditions are true.
+
+function buildUrlPath(selectedTeamId: string | undefined, selectedSubview: SubviewId | undefined, selectedEmployeeId: string | undefined): string {
+    if (selectedTeamId) {
+        if (selectedSubview === "employees") {
+            if (selectedEmployeeId) {
+                return `/hilla/teams/${selectedTeamId}/${selectedSubview}/${selectedEmployeeId}`
+            }
+        }
+        if (selectedSubview) {
+            return `/hilla/teams/${selectedTeamId}/${selectedSubview}`
+        }
+    }
+    return "/hilla/teams"
+}
+
+function buildUrlQueryParameters(searchTerm: string | undefined, selectedSubview: SubviewId, orderEmployeesBy: SortBy | undefined): string {
+    const searchParams = new URLSearchParams()
+    if (searchTerm != null && searchTerm.length > 0) {
+        searchParams.set("search", searchTerm)
+    }
+    if (selectedSubview == "employees" && orderEmployeesBy != null) {
+        searchParams.set("orderBy", serializeSortBy(orderEmployeesBy))
+    }
+    return searchParams.toString()
+}
+
+// TODO Figure out how to initialize the state from the URL
 
 function createTeamsViewModel(): TeamsViewModel {
     const teamSearchTerm = signal<string | undefined>(undefined)
@@ -148,6 +180,24 @@ function createTeamsViewModel(): TeamsViewModel {
         } else {
             return createTeamDetailsViewModel(details, selectedSubview, orderEmployeesBy)
         }
+    })
+    const url = computed(() => {
+        const path = buildUrlPath(
+            selectedTeamId.value,
+            selectedSubview.value,
+            teamDetails.value?.employeesSubview.value.selectedMember.value?.employee.publicId
+        )
+        const queryParameters = buildUrlQueryParameters(
+            teamSearchTerm.value,
+            selectedSubview.value,
+            orderEmployeesBy.value
+        )
+        return queryParameters.length > 0 ? `${path}?${queryParameters}` : path
+    })
+
+    effect(() => {
+        // TODO Figure out when to push and when to replace
+        history.replaceState({}, "", url.value)
     })
 
     // TODO Error handling and loading indicators?

@@ -1,4 +1,4 @@
-import {effect, Signal} from "@vaadin/hilla-react-signals";
+import {Signal} from "@vaadin/hilla-react-signals";
 import {GridSortColumnDirectionChangedEvent} from "@vaadin/react-components";
 
 export type SortBy = {
@@ -26,11 +26,11 @@ export function getDirectionFromSignal(path: string, signal: Signal<SortBy | und
     }
 }
 
-function serialize(sortBy: SortBy): string {
+export function serializeSortBy(sortBy: SortBy): string {
     return `${sortBy.path}:${sortBy.direction}`
 }
 
-function deserialize(string: string | null | undefined): SortBy | undefined {
+export function deserializeSortBy(string: string | null | undefined): SortBy | undefined {
     if (string) {
         const [path, direction] = string.split(":")
         if (path && (direction === "asc" || direction === "desc")) {
@@ -38,23 +38,4 @@ function deserialize(string: string | null | undefined): SortBy | undefined {
         }
     }
     return undefined
-}
-
-// TODO Refactor this to use SearchParam instead.
-export function bindSortBySignalToQueryParameter(parameter: string, signal: Signal<SortBy | undefined>) {
-    const urlSearchParams = new URLSearchParams(window.location.search)
-    const value = deserialize(urlSearchParams.get(parameter))
-    if (value) {
-        signal.value = value
-    }
-
-    effect(() => {
-        if (signal.value) {
-            urlSearchParams.set(parameter, serialize(signal.value))
-        } else {
-            urlSearchParams.delete(parameter)
-        }
-        const newUrl = `${window.location.pathname}?${urlSearchParams.toString()}`
-        window.history.replaceState({}, "", newUrl)
-    })
 }
