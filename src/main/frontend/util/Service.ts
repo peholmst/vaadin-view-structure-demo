@@ -1,4 +1,4 @@
-import {useSignal} from "@vaadin/hilla-react-signals";
+import {ReadonlySignal, useSignal} from "@vaadin/hilla-react-signals";
 import {useEffect} from "react";
 
 export type UseServiceStatus = "pending" | "success" | "error"
@@ -19,6 +19,9 @@ export type UseServiceResult<R> = {
     readonly data: R | undefined
     readonly error: any | undefined
     readonly reset: () => void
+    readonly dataSignal: ReadonlySignal<R | undefined>
+    readonly errorSignal: ReadonlySignal<any | undefined>
+    readonly statusSignal: ReadonlySignal<UseServiceStatus>
 }
 
 export function useServiceQuery<A extends Array<any>, R>(options: UseServiceOptions<A, R>): UseServiceResult<R> {
@@ -73,6 +76,9 @@ export function useServiceQuery<A extends Array<any>, R>(options: UseServiceOpti
             status.value = "pending"
             data.value = undefined
             error.value = undefined
-        }
+        },
+        dataSignal: data,
+        errorSignal: error,
+        statusSignal: status
     }
 }
