@@ -28,6 +28,7 @@ function ConditionalSplitLayout(props: ConditionalSplitLayoutProps) {
 export default function EmployeesSubview({viewModel}: { viewModel: EmployeesSubviewModel }) {
     console.debug("Rendering EmployeesSubview", viewModel)
     // TODO Store size of the detail view in case the user has resized it
+    // TODO Why do I have to click on a selected row twice to unselect it?
     return (
         <ConditionalSplitLayout
             master={
